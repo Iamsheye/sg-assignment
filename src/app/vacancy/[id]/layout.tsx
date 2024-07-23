@@ -17,8 +17,8 @@ const VacancyDetailsLayout = ({ children }: { children: React.ReactNode }) => {
   const job: Vacancy = jobsData.find((job) => job.jobId === params.id)!;
 
   return (
-    <div className="w-5/6 mx-auto px-4 my-8">
-      <div className="flex items-center gap-4 mb-8">
+    <div className="md:w-5/6 mx-auto px-4 my-8">
+      <div className="flex items-center gap-4 mb-8 flex-wrap">
         <button
           onClick={() => router.back()}
           className="shrink-0 flex items-center gap-2 font-semibold text-sm py-2 px-3 rounded-full hover:bg-slate-100">
