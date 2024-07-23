@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   SearchIcon,
   BriefcaseIcon,
@@ -65,7 +66,9 @@ const VacancyListerPage = () => {
                   </div>
                   <p
                     className="text-muted-foreground"
-                    dangerouslySetInnerHTML={{ __html: job.intro }}></p>
+                    dangerouslySetInnerHTML={{
+                      __html: job.intro.substring(0, 135) + "...",
+                    }}></p>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-2">
@@ -90,9 +93,11 @@ const VacancyListerPage = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline" size="sm">
-                    See Details
-                  </Button>
+                  <Link href={`/vacancy/${job.jobId}`}>
+                    <Button variant="outline" size="sm">
+                      See Details
+                    </Button>
+                  </Link>
                 </CardFooter>
               </Card>
             ))}
