@@ -1,7 +1,7 @@
 "use client";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { Calendar, Menu } from "lucide-react";
 import {
   SearchIcon,
   BriefcaseIcon,
@@ -20,11 +20,16 @@ import { Input } from "@/components/ui/input";
 import jobsData from "@/jobs.json";
 import { Vacancy } from "@/types/jobs";
 import useOutsideClick from "@/hooks/useOutsideClick";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+
+type SortOptions = "default" | "asc" | "desc";
 
 const VacancyListerPage = () => {
   const sidebarRef = useRef<HTMLDivElement | null>(null);
 
   const [searchValue, setSearchValue] = useState("");
+
   const [showSidebar, setShowSidebar] = useState(false);
   const [jobs, setJobs] = useState<Vacancy[]>(jobsData);
 
@@ -56,6 +61,39 @@ const VacancyListerPage = () => {
             placeholder="Search jobs..."
             className="w-full rounded-md bg-muted pl-10 pr-4 py-2 text-sm"
           />
+        </div>
+        <div>
+          <h2 className="font-semibold mb-2">Sort Date</h2>
+          <RadioGroup
+            defaultValue="default"
+            onValueChange={(val: SortOptions) => {
+              if (val === "default") {
+                setJobs(jobsData);
+              }
+              if (val === "asc") {
+                setJobs((prev) => [
+                  ...prev.sort((a, b) => a.date.timestamp - b.date.timestamp),
+                ]);
+              }
+              if (val === "desc") {
+                setJobs((prev) => [
+                  ...prev.sort((a, b) => b.date.timestamp - a.date.timestamp),
+                ]);
+              }
+            }}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="default" id="default" />
+              <Label htmlFor="default">Default</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="asc" id="asc" />
+              <Label htmlFor="asc">Ascending</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="desc" id="desc" />
+              <Label htmlFor="desc">Descending</Label>
+            </div>
+          </RadioGroup>
         </div>
       </div>
       <div className="p-6 pl-6 gap-6">
@@ -91,6 +129,12 @@ const VacancyListerPage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-2">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-muted-foreground" />
+                      <span className="text-muted-foreground">
+                        {new Date(job.date.timestamp).toLocaleTimeString()}
+                      </span>
+                    </div>
                     <div className="flex items-center gap-2">
                       <ClockIcon className="w-5 h-5 text-muted-foreground" />
                       <span className="text-muted-foreground">

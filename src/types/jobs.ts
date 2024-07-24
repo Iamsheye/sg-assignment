@@ -16,7 +16,7 @@ type VacancySpec = {
 
 type VacancyDate = {
   __typename: string;
-  timestamp: (string | null)[];
+  timestamp: number;
 };
 
 export type Vacancy = {
