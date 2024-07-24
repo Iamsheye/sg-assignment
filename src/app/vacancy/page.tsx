@@ -29,17 +29,24 @@ const VacancyListerPage = () => {
   const sidebarRef = useRef<HTMLDivElement | null>(null);
 
   const [searchValue, setSearchValue] = useState("");
+  const [sortValue, setSortValue] = useState<SortOptions>("default");
 
   const [showSidebar, setShowSidebar] = useState(false);
   const [jobs, setJobs] = useState<Vacancy[]>(jobsData);
 
   useEffect(() => {
-    setJobs(
-      jobsData.filter((job) =>
-        job.title.toLowerCase().includes(searchValue.toLowerCase())
-      )
+    const filteredJobs = jobsData.filter((job) =>
+      job.title.toLowerCase().includes(searchValue.toLowerCase())
     );
-  }, [searchValue]);
+
+    if (sortValue === "asc") {
+      setJobs(filteredJobs.sort((a, b) => a.date.timestamp - b.date.timestamp));
+    } else if (sortValue === "desc") {
+      setJobs(filteredJobs.sort((a, b) => b.date.timestamp - a.date.timestamp));
+    } else {
+      setJobs(filteredJobs);
+    }
+  }, [searchValue, sortValue]);
 
   useOutsideClick(sidebarRef, () => setShowSidebar(false));
 
@@ -65,22 +72,8 @@ const VacancyListerPage = () => {
         <div>
           <h2 className="font-semibold mb-2">Sort Date</h2>
           <RadioGroup
-            defaultValue="default"
-            onValueChange={(val: SortOptions) => {
-              if (val === "default") {
-                setJobs(jobsData);
-              }
-              if (val === "asc") {
-                setJobs((prev) => [
-                  ...prev.sort((a, b) => a.date.timestamp - b.date.timestamp),
-                ]);
-              }
-              if (val === "desc") {
-                setJobs((prev) => [
-                  ...prev.sort((a, b) => b.date.timestamp - a.date.timestamp),
-                ]);
-              }
-            }}>
+            defaultValue={sortValue}
+            onValueChange={(val: SortOptions) => setSortValue(val)}>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="default" id="default" />
               <Label htmlFor="default">Default</Label>
