@@ -1,14 +1,8 @@
 "use client";
-import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Calendar, Menu } from "lucide-react";
-import {
-  SearchIcon,
-  BriefcaseIcon,
-  MapPinIcon,
-  CpuIcon,
-  ClockIcon,
-} from "@/assets/svgs";
+import { BriefcaseIcon, MapPinIcon, CpuIcon, ClockIcon } from "@/assets/svgs";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,37 +10,66 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import jobsData from "@/jobs.json";
 import { Vacancy } from "@/types/jobs";
 import useOutsideClick from "@/hooks/useOutsideClick";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-
-type SortOptions = "default" | "asc" | "desc";
+import Sidebar from "@/components/sidebar";
+import { options } from "@/constants";
 
 const VacancyListerPage = () => {
   const sidebarRef = useRef<HTMLDivElement | null>(null);
 
-  const [searchValue, setSearchValue] = useState("");
-  const [sortValue, setSortValue] = useState<SortOptions>("default");
+  const [filters, setFilters] = useState({
+    search: "",
+    sort: "default",
+    educationLevel: options.educationLevel,
+    experienceLevel: ["Junior (0-2 jr ervaring)", "Medior (3-5 jr ervaring)"],
+    city: options.city,
+    sector: options.sector,
+  });
 
   const [showSidebar, setShowSidebar] = useState(false);
   const [jobs, setJobs] = useState<Vacancy[]>(jobsData);
 
   useEffect(() => {
-    const filteredJobs = jobsData.filter((job) =>
-      job.title.toLowerCase().includes(searchValue.toLowerCase())
-    );
+    const filteredJobs = jobsData.filter((job) => {
+      const searchMatch = job.title
+        .toLowerCase()
+        .includes(filters.search.toLowerCase());
 
-    if (sortValue === "asc") {
-      setJobs(filteredJobs.sort((a, b) => a.date.timestamp - b.date.timestamp));
-    } else if (sortValue === "desc") {
-      setJobs(filteredJobs.sort((a, b) => b.date.timestamp - a.date.timestamp));
-    } else {
-      setJobs(filteredJobs);
-    }
-  }, [searchValue, sortValue]);
+      const educationMatch = filters.educationLevel.includes(
+        job.specs.educationLevel
+      );
+
+      const experienceMatch = filters.experienceLevel.includes(
+        job.specs.experienceLevel
+      );
+
+      const cityMatch = filters.city.includes(job.specs.city);
+
+      const sectorMatch = filters.sector.includes(job.specs.sector);
+
+      return (
+        searchMatch &&
+        educationMatch &&
+        experienceMatch &&
+        cityMatch &&
+        sectorMatch
+      );
+    });
+
+    setJobs(
+      filteredJobs.sort((a, b) => {
+        if (filters.sort === "asc") {
+          return a.date.timestamp - b.date.timestamp;
+        } else if (filters.sort === "desc") {
+          return b.date.timestamp - a.date.timestamp;
+        } else {
+          return 0;
+        }
+      })
+    );
+  }, [filters]);
 
   useOutsideClick(sidebarRef, () => setShowSidebar(false));
 
@@ -56,39 +79,12 @@ const VacancyListerPage = () => {
 
   return (
     <div className="grid md:grid-cols-[300px_1fr] w-full min-h-screen">
-      <div
-        ref={sidebarRef}
-        className={`bg-background border-r p-6 flex flex-col gap-6 h-[100dvh] md:sticky md:top-0 absolute transition-transform duration-300 ${sidebarClassName}`}>
-        <div className="relative">
-          <SearchIcon className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
-          <Input
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            type="search"
-            placeholder="Search jobs..."
-            className="w-full rounded-md bg-muted pl-10 pr-4 py-2 text-sm"
-          />
-        </div>
-        <div>
-          <h2 className="font-semibold mb-2">Sort Date</h2>
-          <RadioGroup
-            defaultValue={sortValue}
-            onValueChange={(val: SortOptions) => setSortValue(val)}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="default" id="default" />
-              <Label htmlFor="default">Default</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="asc" id="asc" />
-              <Label htmlFor="asc">Ascending</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="desc" id="desc" />
-              <Label htmlFor="desc">Descending</Label>
-            </div>
-          </RadioGroup>
-        </div>
-      </div>
+      <Sidebar
+        filters={filters}
+        className={sidebarClassName}
+        setFilters={setFilters}
+        sidebarRef={sidebarRef}
+      />
       <div className="p-6 pl-6 gap-6">
         <div className="flex items-center justify-between mb-4">
           <Menu
@@ -97,16 +93,20 @@ const VacancyListerPage = () => {
               setShowSidebar(!showSidebar);
             }}
           />
-          <h1 className="text-2xl font-bold">Job Listings</h1>
+          <h1 className="text-3xl font-bold text-[#003366]">
+            Job Listings <span className="text-lg">({jobs.length})</span>
+          </h1>
           <div className="flex items-center gap-2"></div>
         </div>
         <div>
           <div className="flex flex-col gap-4">
             {jobs.map((job) => (
-              <Card key={job.jobId}>
+              <Card key={job.jobId} className="border-[#d1e7fd]">
                 <CardHeader>
                   <div className="flex justify-between gap-2 flex-wrap mb-2">
-                    <h3 className="font-semibold text-lg">{job.title}</h3>
+                    <h2 className="font-semibold text-xl text-[#003366]">
+                      {job.title}
+                    </h2>
                     <div className="shrink-0 flex items-center gap-2">
                       <MapPinIcon className="w-5 h-5 text-muted-foreground" />
                       <span className="text-muted-foreground">
@@ -150,7 +150,10 @@ const VacancyListerPage = () => {
                 </CardContent>
                 <CardFooter>
                   <Link href={`/vacancy/${job.jobId}`}>
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="bg-blue-500 text-white font-semibold border-none rounded-full px-5">
                       See Details
                     </Button>
                   </Link>

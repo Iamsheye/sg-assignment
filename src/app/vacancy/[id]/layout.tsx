@@ -21,11 +21,13 @@ const VacancyDetailsLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="flex items-center gap-4 mb-8 flex-wrap">
         <button
           onClick={() => router.back()}
-          className="shrink-0 flex items-center gap-2 font-semibold text-sm py-2 px-3 rounded-full hover:bg-slate-100">
+          className="shrink-0 flex items-center gap-2 font-semibold text-sm py-2 px-3 rounded-full hover:bg-white hover:border duration-200 transition-colors">
           <ArrowBackIcon className="w-4 h-4" />
           Go Back
         </button>
-        <h1 className="grow font-semibold text-4xl text-center">{job.title}</h1>
+        <h1 className="grow font-semibold text-4xl text-center text-[#003366]">
+          {job.title}
+        </h1>
       </div>
       <div className="flex flex-wrap justify-around gap-4 p-2 mb-12">
         <div className="flex items-center gap-2">
