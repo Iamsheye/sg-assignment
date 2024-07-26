@@ -86,7 +86,9 @@ const VacancyApplyPage = () => {
           />
         </div>
         <div className="my-4">
-          <Button className="w-full">Submit</Button>
+          <Button className="w-full bg-blue-500 text-base font-bold">
+            Submit
+          </Button>
         </div>
       </form>
     </div>
